@@ -1,0 +1,230 @@
+// Decompiled by Jad v1.5.8g. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.kpdus.com/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   my1st.java
+
+package proba;
+
+import java.util.Random;
+import javax.microedition.lcdui.*;
+import javax.microedition.midlet.MIDlet;
+
+public class my1st extends MIDlet
+    implements CommandListener
+{
+
+    public my1st()
+    {
+        first = true;
+        rand = new Random();
+    }
+
+    protected void startApp()
+    {
+        display = Display.getDisplay(this);
+        if(first)
+        {
+            mainForm = new Form("Bulls-and-Cows");
+            Zagaday();
+            mainForm.append(new StringItem("", "  **** - Guess it..."));
+            mainForm.addCommand(CMD_GO);
+            mainForm.addCommand(CMD_EXIT);
+            mainForm.setCommandListener(this);
+            first = false;
+            boolean flag = false;
+        }
+        display.setCurrent(mainForm);
+    }
+
+    public void commandAction(Command command, Displayable displayable)
+    {
+        if(command == CMD_EXIT)
+        {
+            destroyApp(false);
+            notifyDestroyed();
+        } else
+        if(command == CMD_GO)
+        {
+            txtbox = new TextBox("Turn:", null, 4, 2);
+            txtbox.addCommand(CMD_OK);
+            txtbox.setCommandListener(this);
+            display.setCurrent(txtbox);
+        }
+        if(command == CMD_OK)
+        {
+            text = txtbox.getString().trim();
+            good = false;
+            good = TurnProv();
+            if(good)
+            {
+                ProverkaBC();
+                sbc = "  B:" + sb + "  C:" + sc;
+                iturn++;
+                texti = Integer.toString(iturn);
+                sar = Arr2Str(2);
+                mainForm.append(new StringItem("", texti + ":" + sar + sbc));
+                if(b == 4)
+                {
+                    mainForm.append(new StringItem("", "Congratulations!!!"));
+                    mainForm.removeCommand(CMD_GO);
+                    mainForm.removeCommand(CMD_EXIT);
+                    mainForm.addCommand(CMD_NEW);
+                    mainForm.addCommand(CMD_EXIT);
+                    mainForm.setCommandListener(this);
+                }
+            }
+            display.setCurrent(mainForm);
+        }
+        if(command == CMD_NEW)
+        {
+            display = Display.getDisplay(this);
+            mainForm = new Form("Bulls-and-Cows");
+            Zagaday();
+            mainForm.append(new StringItem("", " **** Guess more."));
+            mainForm.addCommand(CMD_GO);
+            mainForm.addCommand(CMD_EXIT);
+            mainForm.setCommandListener(this);
+            first = true;
+            iturn = 0;
+            display.setCurrent(mainForm);
+        }
+    }
+
+    protected void destroyApp(boolean flag)
+    {
+    }
+
+    protected void pauseApp()
+    {
+    }
+
+    int randRange(int i)
+    {
+        int j = rand.nextInt() % i;
+        if(j < 0)
+            j += i;
+        return j;
+    }
+
+    boolean TurnProv()
+    {
+        boolean flag = true;
+        int i = text.length();
+        if(i == 4)
+        {
+            for(int j = 0; j < 4; j++)
+            {
+                String s = text.substring(j, j + 1);
+                tu[j] = Integer.parseInt(s, 10);
+                for(int k = 0; k < j; k++)
+                    if(tu[j] == tu[k])
+                    {
+                        flag = false;
+                        return flag;
+                    }
+
+            }
+
+        } else
+        {
+            flag = false;
+            return flag;
+        }
+        return flag;
+    }
+
+    void Zagaday()
+    {
+label0:
+        for(int i = 0; i < 4; i++)
+        {
+            int j = randRange(10);
+            da[i] = j;
+            int k = 0;
+            do
+            {
+                if(k >= i)
+                    continue label0;
+                if(da[i] == da[k])
+                {
+                    i--;
+                    continue label0;
+                }
+                k++;
+            } while(true);
+        }
+
+    }
+
+    String Arr2Str(int i)
+    {
+        String s = "";
+        int j = 0;
+        do
+        {
+            if(j >= 4)
+                break;
+            switch(i)
+            {
+            case 1: // '\001'
+                s = s + Integer.toString(da[j]) + " ";
+                // fall through
+
+            case 2: // '\002'
+                s = s + Integer.toString(tu[j]);
+                // fall through
+
+            default:
+                j++;
+                break;
+            }
+        } while(true);
+        return s;
+    }
+
+    void ProverkaBC()
+    {
+        b = 0;
+        c = 0;
+        for(int i = 0; i < 4; i++)
+        {
+            if(da[i] == tu[i])
+                b++;
+            for(int j = 0; j < 4; j++)
+                if(i != j && da[i] == tu[j])
+                    c++;
+
+        }
+
+        sb = Integer.toString(b);
+        sc = Integer.toString(c);
+    }
+
+    private Display display;
+    private Form mainForm;
+    private boolean first;
+    private static final Command CMD_NEW = new Command("New", 8, 3);
+    private static final Command CMD_GO = new Command("Turn", 8, 2);
+    private static final Command CMD_EXIT = new Command("Exit", 7, 2);
+    private static final Command CMD_OK = new Command("OK", 4, 1);
+    public Random rand;
+    public StringItem item;
+    public String text;
+    public String texti;
+    public String sar;
+    public String sbc;
+    public String sb;
+    public String sc;
+    public TextBox txtbox;
+    public int iturn;
+    public int b;
+    public int c;
+    public boolean good;
+    public int tu[] = {
+        0, 0, 0, 0
+    };
+    public int da[] = {
+        0, 0, 0, 0
+    };
+
+}
